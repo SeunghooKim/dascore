@@ -7,7 +7,7 @@ import pandas as pd
 
 PatchType = TypeVar("PatchType", bound="dascore.Patch")
 
-SpoolType = TypeVar("SpoolType", bound="dascore.Spool")
+SpoolType = TypeVar("SpoolType", bound="dascore.core.spool.BaseSpool")
 
 # Bump this to force re-downloading of all data file
 DATA_VERSION = "0.0.0"
@@ -17,9 +17,6 @@ timeable_types = Union[int, float, str, np.datetime64, pd.Timestamp]
 
 # Number types
 numeric_types = Union[int, float]
-
-# Expected Keys in the Summary Dictionaries
-SUMMARY_KEYS = ("format", "min_time", "max_time", "min_distance", "max_distance")
 
 # expected fiber attributes
 DEFAULT_DIMS = ("time", "distance")
