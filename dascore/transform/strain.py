@@ -14,6 +14,7 @@ def velocity_to_strain_rate(
     patch: PatchType,
     gauge_multiple: Union[int] = 1,
     order=1,
+    is_finite_diff=True,
 ) -> PatchType:
     """
     Convert velocity das data to strain rate.
@@ -30,15 +31,28 @@ def velocity_to_strain_rate(
     order
         The order for the derivative operator. Second order is default.
     """
-    assert gauge_multiple == 1, "only supporting 1 for now."
-    axis = patch.dims.index("distance")
     d_distance = patch.attrs["d_distance"]
-    differ = findiff.FinDiff(axis, d_distance, order)
-    new = differ(patch.data)
-    attrs = dict(patch.attrs)
-    attrs["data_type"] = "strain_rate"
-    attrs["gauge_length"] = d_distance * gauge_multiple
-    return patch.new(data=new, attrs=attrs)
+    axis = patch.dims.index("distance")
+    if is_finite_diff:
+        assert gauge_multiple == 1, "only supporting 1 for now."
+        differ = findiff.FinDiff(axis, d_distance, order)
+        new = differ(patch.data)
+        attrs = dict(patch.attrs)
+        attrs["data_type"] = "strain_rate"
+        attrs["gauge_length"] = d_distance * gauge_multiple
+        return patch.new(data=new, attrs=attrs)
+    else:
+        data = patch.data
+        if axis == 0:
+            new = data[gauge_multiple:, :] - data[:-gauge_multiple, :]
+        if axis == 1:
+            new = data[:, gauge_multiple:] - data[:, :-gauge_multiple]
+        new /= d_distance * gauge_multiple
+        daxis = patch.coords["distance"]
+        daxis = (daxis[gauge_multiple:] + daxis[:-gauge_multiple]) / 2
+        coords = patch.coords
+        coords["distance"] = daxis
+        return patch.new(data=new, coords=coords)
 
 
 #
