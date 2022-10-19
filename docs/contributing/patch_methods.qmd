@@ -1,0 +1,71 @@
+---
+title: Patch Methods
+---
+
+DASCore provides several convenience functions for writing `Patch` methods
+(e.g., processing, visualization, transformations). These are located
+in DASCore's [Patch Utils module](`dascore.utils.patch`). See the
+[`Patch` section of the tutorial](../tutorial/patch.qmd) for information
+on working with `Patch` instances.
+
+# Patch Function Decorator
+
+The [`patch_function` decorator](`dascore.utils.patch.patch_function`) is used
+to mark a patch function. It can be used to concisely declare expectations
+about the nature of the input `Patch` and the history tracking behavior.
+
+For example, the following creates a patch function which will only
+accept patches with dimensions "time" and "distance", otherwise an
+error will be raise before the function body is called.
+
+```{python}
+import dascore as dc
+
+@dascore.patch_function(required_dims=('time', 'distance'))
+def do_something(patch):
+    ...
+```
+
+This example will raise an error if specified attributes don't have
+a required value
+
+```{python}
+@dascore.patch_function(required_attrs={'data_type': 'DAS'})
+def do_another_thing(patch):
+    ...
+```
+
+This function will not record a history string of the function being
+called on a patch
+
+```{python}
+@dascore.patch_function(history=None)
+def do_anti_history_thing(patch):
+    ...
+```
+
+# Dimensional Selection
+
+Many patch functions should operate on any dimension. To facilitate this,
+kwargs are used by the patch function and
+[get_dim_value_from_kwargs](`dascore.utils.patch.get_dim_value_from_kwargs`)
+can easily be used to extract the desired values.
+
+For example:
+
+```{python}
+import dascore as dc
+from dascore.utils.patch import get_dim_value_from_kwargs
+
+def fancy_filter(patch, **kwargs):
+    """
+    Apply a fancy filter along specified dimension
+    """
+    dim, axis, value = get_dim_value_from_kwargs(patch, **kwargs)
+```
+
+
+
+
+
+

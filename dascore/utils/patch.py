@@ -645,3 +645,26 @@ def get_default_patch_name(patch):
     sta = attrs.get("station", "")
     tag = attrs.get("tag", "")
     return f"DAS__{net}__{sta}__{tag}__{start}__{end}"
+
+
+def get_dim_value_from_kwargs(patch, kwargs):
+    """
+    Assert that kwargs contain one value and it is a dimension of patch.
+
+    Several patch functions allow passing values via kwargs which are dimension
+    specific. This function allows for some sane validation of such functions.
+
+    Return the name of the dimension, its axis position, and its value.
+    """
+    dims = patch.dims
+    overlap = set(dims) & set(kwargs)
+    if len(kwargs) != 1 or not overlap:
+        msg = (
+            "You must use exactly one dimension name in kwargs. "
+            f"You passed the following kwargs: {kwargs} to a patch with "
+            f"dimensions {patch.dims}"
+        )
+        raise PatchDimError(msg)
+    dim = list(overlap)[0]
+    axis = dims.index(dim)
+    return dim, axis, kwargs[dim]

@@ -13,17 +13,16 @@ fixes/minor changes have been made, only the patch version will be bumped. Like 
 follow [semantic versioning](https://semver.org/) in terms that we will not bump the major version until DASCore
 is more stable.
 
-
 # Paths
 
 Prefer `pathlib.Path` to strings when working with paths. However, when dealing with many many files (e.g., indexers)
 strings may be preferred for efficiency.
 
-# Working with dataframes
+# Dataframes
 
 Column names should be snake_cased whenever possible.
 
 Always access columns with getitem and not getattr (ie use `df['column_name']` not `df.column_name`).
 
-Prefer creating a new `DataFrame`/`Series` to modifying them inplace. Inplace modifications should require opting in
+Prefer creating a new `DataFrame`/`Series` to modifying inplace. Inplace modifications should require opting in
 (usually through an `inplace` key word argument).
