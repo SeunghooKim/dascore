@@ -128,7 +128,7 @@ class TestSelect:
 
     def test_multiple_range_selects(self, adjacent_spool_no_overlap):
         """
-        Ensure multiple range slects can be used in one call (eg time and distance).
+        Ensure multiple range selects can be used in one call (eg time and distance).
         """
         spool = adjacent_spool_no_overlap
         contents = spool.get_contents()
@@ -152,6 +152,19 @@ class TestSelect:
             assert patch.attrs["time_max"] <= time_max
             assert patch.attrs["distance_min"] >= distance_min
             assert patch.attrs["distance_max"] <= distance_max
+
+    def test_out_of_range_select(self, adjacent_spool_no_overlap):
+        """
+        Ensure the spool length is 0 outside valid times.
+        """
+        contents = adjacent_spool_no_overlap.get_contents()
+        max_time = contents["time_max"].max()
+        one_second = pd.to_timedelta(1, "s")
+        new1 = adjacent_spool_no_overlap.select(time=(max_time + one_second, None))
+        new2 = adjacent_spool_no_overlap.select(time=(None, "1990-01-01"))
+        new3 = adjacent_spool_no_overlap.select(time=("2100-02-01", "2150-01-01"))
+        for spool in [new1, new3, new2]:
+            assert len(spool) == 0
 
 
 class TestChunk:

@@ -163,6 +163,20 @@ class TestSelect:
         patch = sub[0]
         assert isinstance(patch, dc.Patch)
 
+    def test_out_of_range_select(self, diverse_directory_spool):
+        """
+        Ensure the spool has no length outside valid times.
+        """
+        spool = diverse_directory_spool
+        contents = spool.get_contents()
+        max_time = contents["time_max"].max()
+        one_second = pd.to_timedelta(1, "s")
+        new1 = spool.select(time=(max_time + one_second, None))
+        new2 = spool.select(time=(None, "1789-05-05"))  # a revolutionary time
+        new3 = spool.select(time=("2100-02-01", "2150-01-01"))
+        for sub_spool in [new1, new3, new2]:
+            assert len(sub_spool) == 0
+
 
 class TestBasicChunk:
     """Tests for chunking filespool."""
